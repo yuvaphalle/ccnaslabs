@@ -1,0 +1,59 @@
+enable
+conf t
+hostname R2
+
+line con 0
+! prevent telnet when type sh-t command
+transport preferred none
+exit
+
+interface serial 0/0/0
+ip address 10.1.1.2 255.255.255.252
+no shutdown
+clock rate 64000
+exit
+
+interface serial 0/0/1
+ip address 10.2.2.2 255.255.255.252
+no shutdown
+exit
+
+router ospf 1
+network 10.1.1.0 0.0.0.3 area 0
+network 10.2.2.0 0.0.0.3 area 0
+end
+
+clock set 13:39:50 Sep 25 2019
+
+configure terminal
+
+ntp authentication-key 1 md5 NTPpassword
+ntp trusted-key 1
+ntp authenticate
+ntp master 3
+
+key chain NetAcad
+key 1
+key-string CCNASkeystring
+cryptographic-algorithm hmac-sha-256
+exit
+
+interface serial 0/0/0
+ip ospf authentication key-chain NetAcad
+exit
+
+interface serial 0/0/1
+ip ospf authentication key-chain NetAcad
+
+end
+
+
+
+________________passwords_____________
+line aux 0 - ciscoauxpass
+line vty 0 4 - ciscovtypassword
+user01 - user01pass
+enable - cisco12345
+admin - cisco12345
+
+
